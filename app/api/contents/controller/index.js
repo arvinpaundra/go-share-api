@@ -7,6 +7,9 @@ const {
   deleteContentCreatorDB,
   getDetailContentDB,
 } = require('./queries');
+const path = require('path');
+const fs = require('fs');
+const config = require('../../../../config');
 
 module.exports = {
   getAllContents: async (req, res) => {
@@ -31,7 +34,7 @@ module.exports = {
       const content = await getDetailContentDB(id_content);
 
       if (!content) {
-        return res.status(404).json({ data: { message: "Content doesn't exist." } });
+        return res.status(404).json({ data: { msessage: "Content doesn't exist." } });
       }
 
       return res.status(200).json({ data: { message: 'success', result: content } });
@@ -55,13 +58,32 @@ module.exports = {
     }
   },
   postContent: async (req, res) => {
-    const { title, url, thumbnail, id_creator } = req.body;
+    const { title, url, id_creator } = req.body;
 
     try {
-      await postContentCreatorDB(title, url, thumbnail, id_creator);
+      let temp_path = req.file.path;
+      let originalExt =
+        req.file.originalname.split('.')[req.file.originalname.split('.').length - 1];
+      let filename = `${req.file.filename}.${originalExt}`;
+      let target_path = path.resolve(config.rootPath, `public/uploads/thumbnail/${filename}`);
 
-      return res.status(201).json({ data: { message: 'Upload content successful.' } });
+      const src = fs.createReadStream(temp_path);
+      const dest = fs.createWriteStream(target_path);
+
+      src.pipe(dest);
+
+      src.on('end', async () => {
+        try {
+          await postContentCreatorDB(title, url, filename, id_creator);
+
+          return res.status(201).json({ data: { message: 'Upload content successful.' } });
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({ data: { message: error.message } });
+        }
+      });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ data: { message: 'Internal server error.' } });
     }
   },

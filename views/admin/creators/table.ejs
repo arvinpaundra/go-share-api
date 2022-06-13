@@ -1,0 +1,34 @@
+<div class="table-responsive" id="example">
+  <table class="table align-items-center mb-0">
+    <thead>
+      <tr>
+        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">No.</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Creator's Name</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Email</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Status</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% creators.forEach((creator,  index) => { %>
+       <tr>
+        <td><%= index + 1 %></td>
+        <td><%= creator.fullname %></td>
+        <td><%= creator.email %></td>
+        <td class="text-center">
+          <% if (creator.status === 'Y') { %>
+            <span class="badge bg-gradient-success">Member</span>
+          <% } else { %>
+            <span class="badge bg-gradient-danger">Non-Member</span>
+          <% } %>
+        </td>
+        <td class="d-flex justify-content-center align-items-center">
+          <a href="/admin/creators/edit/<%= creator.id_creator %>" class="btn btn-outline-info btn-sm">
+            Edit
+          </a>
+        </td>
+       </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

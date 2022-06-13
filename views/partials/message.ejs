@@ -1,0 +1,8 @@
+<% if (alert.status != '') { %>
+  <div class="alert alert-<%= alert.status %> text-white alert-dismissible fade show" role="alert">
+    <span class="alert-text"><%= alert.message %></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<% } %>

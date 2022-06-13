@@ -1,0 +1,31 @@
+<div class="table-responsive" id="example">
+  <table class="table align-items-center mb-0">
+    <thead>
+      <tr>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">No.</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Nominal Before</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Nominal After</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Last Updated</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% vouchers.forEach((voucher,  index) => { %>
+       <tr>
+        <td class="text-center"><%= index + 1 %></td>
+        <td class="text-center"><%= voucher.nominal_before %></td>
+        <td class="text-center"><%= voucher.nominal_after %></td>
+        <td class="text-center"><%= new Date(voucher.updatedAt).toLocaleDateString('en-EN', { dateStyle: 'medium', timeStyle: 'medium', hour12: false}) %></td>
+        <td class="d-flex justify-content-center align-items-center">
+          <a href="/admin/vouchers/edit/<%= voucher.id_voucher %>" class="btn btn-outline-info btn-sm me-2">
+            Edit
+          </a>
+          <form action="/admin/vouchers/delete/<%= voucher.id_voucher %>?_method=DELETE" method="POST">
+            <button type="submit" class="btn bg-gradient-danger btn-sm">Delete</button>
+          </form>
+        </td>
+       </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

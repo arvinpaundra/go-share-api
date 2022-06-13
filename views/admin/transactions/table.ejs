@@ -1,0 +1,55 @@
+<div class="table-responsive" id="example">
+  <table class="table align-items-center mb-0">
+    <thead>
+      <tr>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">No.</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Transaction Evidence</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Creator's Name</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Nominal</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Via</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Date</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Status</th>
+        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% transactions.forEach((transaction,  index) => { %>
+       <tr>
+        <td class="text-center"><%= index + 1 %></td>
+        <td class="text-center"><img width="120" src="/uploads/transactions/<%= transaction.transaction_evidence %>" alt="Transaction Evidence"></td>
+        <td class="text-center"><%= transaction.fullname %></td>
+        <td class="text-center"><%= transaction.nominal %></td>
+        <td class="text-center"><%= transaction.payment_method %></td>
+        <td class="text-center"><%= new Date(transaction.transaction_date).toLocaleDateString('en-EN', { dateStyle: 'medium', timeStyle: 'medium', hour12: false}) %></td>
+        <td class="text-center">
+          <% if (transaction.status === 'pending') { %>
+            <span class="badge bg-gradient-warning">Pending</span>
+          <% } else if (transaction.status === 'success') { %>
+            <span class="badge bg-gradient-success">Success</span>
+          <% } else { %>
+            <span class="badge bg-gradient-danger">Denied</span>
+          <% } %> 
+        </td>
+        <td>
+          <form action="/admin/transactions/join/<%= transaction.id_transaction %>?_method=PUT&status=success&id_creator=<%= transaction.id_creator %>" method="POST">
+            <button class="btn bg-gradient-success btn-icon btn-sm text-white me-2">
+              <span class="btn-inner--icon">
+                <i class="material-icons text-lg">check</i>
+              </span>
+              <span class="btn-inner--text">Accept</span>
+            </button>
+          </form>
+          <form action="/admin/transactions/join/<%= transaction.id_transaction %>?_method=PUT&status=denied&id_creator=<%= transaction.id_creator %>" method="POST">
+            <button class="btn bg-gradient-danger btn-icon btn-sm text-white me-2">
+              <span class="btn-inner--icon">
+                <i class="material-icons text-lg">close</i>
+              </span>
+              <span class="btn-inner--text">Deny</span>
+            </button>
+          </form>
+        </td>
+       </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
