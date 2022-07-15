@@ -33,11 +33,11 @@ db.getCreatorByIdDB = (id_creator) => {
   });
 };
 
-db.editCreatorByIdDB = (id_creator, fullname, email, status, thumbnail) => {
+db.editCreatorByIdDB = (id_creator, fullname, email, status) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `UPDATE creators SET fullname = ?, email = ?, status = ?, thumbnail = ? WHERE id_creator = ?`,
-      [fullname, email, status, thumbnail, id_creator],
+      `UPDATE creators SET fullname = ?, email = ?, status = ? WHERE id_creator = ?`,
+      [fullname, email, status, id_creator],
       (error) => {
         if (error) {
           return reject(error);

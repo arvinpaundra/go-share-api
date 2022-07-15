@@ -33,11 +33,11 @@ db.getContentByIdDB = (id_content) => {
   });
 };
 
-db.editContentByIdDB = (id_content, title, url, thumbnail) => {
+db.editContentByIdDB = (id_content, title, url) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `UPDATE contents SET title = ?, url = ?, thumbnail = ? WHERE id_content = ?`,
-      [title, url, thumbnail, id_content],
+      `UPDATE contents SET title = ?, url = ? WHERE id_content = ?`,
+      [title, url, id_content],
       (error) => {
         if (error) {
           return reject(error);

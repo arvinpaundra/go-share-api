@@ -1,12 +1,11 @@
-const { rootPath } = require('../../../../config');
 const {
   getAllContentsDB,
   getContentByIdDB,
   editContentByIdDB,
   deleteContentByIdDB,
 } = require('./queries');
-const path = require('path');
 const fs = require('fs');
+const config = require('../../../../config');
 
 module.exports = {
   getAllContents: async (req, res) => {
@@ -56,48 +55,17 @@ module.exports = {
     const { id_content } = req.params;
 
     try {
-      if (!title || !url || req.file === undefined) {
+      if (!title || !url) {
         req.flash('alertMessage', 'Fields can not be empty.');
         req.flash('alertStatus', 'danger');
         return res.redirect(`/admin/contents/edit/${id_content}`);
       }
 
-      if (req.file) {
-        console.log(req.file);
-        let temp_path = req.file.path;
-        let originalExt =
-          req.file.originalname.split('.')[req.file.originalname.split('.').length - 1];
-        let filename = `${req.file.filename}.${originalExt}`;
-        let target_path = path.resolve(rootPath, `public/uploads/thumbnail/${filename}`);
+      await editContentByIdDB(id_content, title, url);
 
-        const src = fs.createReadStream(temp_path);
-        const dest = fs.createWriteStream(target_path);
-
-        src.pipe(dest);
-
-        src.on('end', async () => {
-          try {
-            const content = await getContentByIdDB(id_content);
-
-            let currentImage = `${rootPath}/public/uploads/thumbnail/${content.thumbnail}`;
-            if (fs.existsSync(currentImage)) {
-              fs.unlink(currentImage, (error) => {
-                if (error) throw error;
-              });
-            }
-
-            await editContentByIdDB(id_content, title, url, filename);
-
-            req.flash('alertMessage', 'Successfully update content.');
-            req.flash('alertStatus', 'success');
-            return res.redirect('/admin/contents');
-          } catch (error) {
-            req.flash('alertMessage', 'Internal server error');
-            req.flash('alertStatus', 'danger');
-            return res.redirect('/admin/contents');
-          }
-        });
-      }
+      req.flash('alertMessage', 'Successfully update content.');
+      req.flash('alertStatus', 'success');
+      return res.redirect('/admin/contents');
     } catch (error) {
       req.flash('alertMessage', 'Internal server error.');
       req.flash('alertStatus', 'danger');
@@ -108,6 +76,22 @@ module.exports = {
     const { id_content } = req.params;
 
     try {
+      const content = await getContentByIdDB(id_content);
+
+      if (!content) {
+        req.flash('alertMessage', 'Internal server error.');
+        req.flash('alertStatus', 'danger');
+        return res.redirect('/admin/contents');
+      }
+
+      const currentImage = `${config.rootPath}/public/uploads/thumbnail/${content.thumbnail}`;
+
+      if (fs.existsSync(currentImage)) {
+        fs.unlink(currentImage, (err) => {
+          if (err) throw err;
+        });
+      }
+
       await deleteContentByIdDB(id_content);
 
       req.flash('alertMessage', 'Successfully delete content.');

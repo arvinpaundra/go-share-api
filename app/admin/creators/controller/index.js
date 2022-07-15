@@ -51,47 +51,17 @@ module.exports = {
     const { id_creator } = req.params;
 
     try {
-      if (!fullname || !email || !status || !req.file) {
+      if (!fullname || !email || !status) {
         req.flash('alertMessage', 'Field can not be empty.');
         req.flash('alertStatus', 'danger');
         return res.redirect(`/admin/creators/edit/${id_creator}`);
       }
 
-      if (req.file) {
-        let temp_path = req.file.path;
-        let originalExt =
-          req.file.originalname.split('.')[req.file.originalname.split('.').length - 1];
-        let filename = `${req.file.filename}.${originalExt}`;
-        let target_path = path.resolve(rootPath, `public/uploads/${filename}`);
+      await editCreatorByIdDB(id_creator, fullname, email, status);
 
-        const src = fs.createReadStream(temp_path);
-        const dest = fs.createWriteStream(target_path);
-
-        src.pipe(dest);
-
-        src.on('end', async () => {
-          try {
-            const creator = await getCreatorByIdDB(id_creator);
-
-            let currentImage = `${rootPath}/public/uploads/profile/${creator.thumbnail}`;
-            if (fs.existsSync(currentImage)) {
-              fs.unlink(currentImage, (error) => {
-                if (error) throw error;
-              });
-            }
-
-            await editCreatorByIdDB(id_creator, fullname, email, status, filename);
-
-            req.flash('alertMessage', 'Successfully update creator.');
-            req.flash('alertStatus', 'success');
-            return res.redirect('/admin/creators');
-          } catch (error) {
-            req.flash('alertMessage', 'Internal server error');
-            req.flash('alertStatus', 'danger');
-            return res.redirect('/admin/creators');
-          }
-        });
-      }
+      req.flash('alertMessage', 'Successfully update creator.');
+      req.flash('alertStatus', 'success');
+      return res.redirect('/admin/creators');
     } catch (error) {
       req.flash('alertMessage', 'Internal server error.');
       req.flash('alertStatus', 'danger');

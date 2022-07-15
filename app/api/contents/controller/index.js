@@ -78,12 +78,10 @@ module.exports = {
 
           return res.status(201).json({ data: { message: 'Upload content successful.' } });
         } catch (error) {
-          console.log(error);
           return res.status(500).json({ data: { message: error.message } });
         }
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ data: { message: 'Internal server error.' } });
     }
   },
@@ -91,30 +89,69 @@ module.exports = {
     const { title, url } = req.body;
     const { id_content } = req.params;
 
-    try {
-      const findContent = await getContentByIdDB(id_content);
+    if (!title || !url) {
+      return res.status(400).json({ data: { message: 'Field cannot be empty.' } });
+    }
 
-      if (!findContent) {
-        return res.status(404).json({ data: { message: 'Not found' } });
+    if (req.file) {
+      try {
+        let tmp_path = req.file.path;
+        let originalExt =
+          req.file.originalname.split('.')[req.file.originalname.split('.').length - 1];
+        let filename = `${req.file.filename}.${originalExt}`;
+        let target_path = path.resolve(config.rootPath, `public/uploads/thumbnail/${filename}`);
+
+        const src = fs.createReadStream(tmp_path);
+        const dest = fs.createWriteStream(target_path);
+
+        src.pipe(dest);
+
+        src.on('end', async () => {
+          try {
+            const content = await getContentByIdDB(id_content);
+
+            if (!content) {
+              return res.status(404).json({ data: { message: 'Not found' } });
+            }
+
+            let currentImage = `${config.rootPath}/public/uploads/${content.thumbnail}`;
+
+            if (fs.existsSync(currentImage)) {
+              fs.unlink(currentImage, (err) => {
+                if (err) throw err;
+              });
+            }
+
+            await editContentCreatorDB(title, url, filename, id_content);
+
+            return res
+              .status(201)
+              .json({ data: { message: 'Yeay, your content has been updated successfully!' } });
+          } catch (error) {
+            res.status(500).json({ data: { message: 'Internal server error.' } });
+          }
+        });
+      } catch (error) {
+        return res.status(500).json({ data: { message: 'Internal server error.' } });
       }
-
-      await editContentCreatorDB(title, url, thumbnail, id_content);
-
-      return res
-        .status(201)
-        .json({ data: { message: 'Yeay, your content has been updated successfully!' } });
-    } catch (error) {
-      res.status(500).json({ data: { message: 'Internal server error.' } });
     }
   },
   deleteContent: async (req, res) => {
-    const { id_content } = req.body;
+    const { id_content } = req.params;
 
     try {
       const content = await getContentByIdDB(id_content);
 
       if (!content) {
         return res.status(404).json({ data: { message: 'Content is not exist.' } });
+      }
+
+      const currentImage = `${config.rootPath}/public/uploads/thumbnail/${content.thumbnail}`;
+
+      if (fs.existsSync(currentImage)) {
+        fs.unlink(currentImage, (err) => {
+          if (err) throw err;
+        });
       }
 
       await deleteContentCreatorDB(id_content);

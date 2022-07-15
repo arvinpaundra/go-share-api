@@ -22,7 +22,13 @@ router.post(
   multer({ dest: os.tmpdir() }).single('thumbnail'),
   postContent,
 );
-router.put('/:id_content', isCreatorLogin, subscriptionStatus, editContent);
+router.put(
+  '/:id_content',
+  isCreatorLogin,
+  subscriptionStatus,
+  multer({ dest: os.tmpdir() }).single('thumbnail'),
+  editContent,
+);
 router.get('/:id_content', isCreatorLogin, subscriptionStatus, getDetailContent);
 router.delete('/:id_content', isCreatorLogin, subscriptionStatus, deleteContent);
 

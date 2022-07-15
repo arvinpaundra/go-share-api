@@ -18,4 +18,52 @@ db.getDataCreatorDB = (id_creator) => {
   });
 };
 
+db.editDataProfileDB = (fullname, email, id_creator) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `UPDATE creators SET fullname = ?, email = ? WHERE id_creator = ?`,
+      [fullname, email, id_creator],
+      (error) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve();
+      },
+    );
+  });
+};
+
+db.editProfilePictureDB = (thumbnail, id_creator) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `UPDATE creators SET thumbnail = ? WHERE id_creator = ?`,
+      [thumbnail, id_creator],
+      (error) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve();
+      },
+    );
+  });
+};
+
+db.editProfilePasswordDB = (password, id_creator) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `UPDATE creators SET password = ? WHERE id_creator = ?`,
+      [password, id_creator],
+      (error) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve();
+      },
+    );
+  });
+};
+
 module.exports = db;

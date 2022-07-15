@@ -71,6 +71,9 @@ app.use(`${URL}/creators`, creatorsRouter);
 app.use(`${URL}/vouchers`, vouchersRouter);
 app.use(`${URL}/transactions`, transactionsRouter);
 app.use('/admin', adminRouter);
+app.use('/', (req, res) => {
+  res.redirect('/admin');
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
